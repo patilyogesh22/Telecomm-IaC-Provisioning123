@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: telecomm-container
-        image: yogeshpatil/telecomm-app:1.0
+        image: yogeshpatil22/telecomm-iac:latest
         ports:
         - containerPort: 5000
