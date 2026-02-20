@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASS }}
 
       - name: Build Docker image
-        run: docker build -t yogeshpatil22/telecomm-iac:latest ./docker
+        run: docker build -t yogeshpatil22/telecomm-iac123:latest ./docker
 
       - name: Push Docker image
-        run: docker push yogeshpatil22/telecomm-iac:latest
+        run: docker push yogeshpatil22/telecomm-iac123:latest
