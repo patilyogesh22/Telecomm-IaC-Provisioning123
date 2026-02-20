@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeleCom - Mobile Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Syne:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <div class="logo">
+                    <span class="logo-icon">📱</span>
+                    <span class="logo-text">TeleCom</span>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
+                    <li><a href="#plans" class="nav-link">Plans</a></li>
+                    <li><a href="#usage" class="nav-link">Usage</a></li>
+                    <li><a href="#calls" class="nav-link">Calls</a></li>
+                </ul>
+                <div class="user-info">
+                    <div class="avatar">{{ user.avatar }}</div>
+                    <span class="user-name">{{ user.name }}</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section">
+                <div class="section-header">
+                    <h1 class="page-title">Welcome back, {{ user.name }}!</h1>
+                    <p class="page-subtitle">Here's your telecom overview</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <!-- Active Plan Card -->
+                    <div class="stat-card plan-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Active Plan</div>
+                            <div class="stat-value" id="planName">Standard Plan</div>
+                            <div class="stat-detail">₹<span id="planPrice">599</span>/month</div>
+                            <div class="stat-badge active">✓ Active</div>
+                        </div>
+                    </div>
+
+                    <!-- Current Bill Card -->
+                    <div class="stat-card bill-card">
+                        <div class="stat-icon">💳</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Current Bill</div>
+                            <div class="stat-value">₹<span id="billAmount">706.82</span></div>
+                            <div class="stat-detail">Due: <span id="billDue">Feb 25, 2024</span></div>
+                            <div class="stat-badge pending">⚠ Pending</div>
+                        </div>
+                    </div>
+
+                    <!-- Total Calls Card -->
+                    <div class="stat-card calls-card">
+                        <div class="stat-icon">☎️</div>
+                        <div class="stat-content">
+                            <div class="stat-label">This Month</div>
+                            <div class="stat-value"><span id="totalCalls">22</span> min</div>
+                            <div class="stat-detail">Calls used</div>
+                            <div class="stat-badge">750 min limit</div>
+                        </div>
+                    </div>
+
+                    <!-- Data Usage Card -->
+                    <div class="stat-card data-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <div class="stat-label">Data Usage</div>
+                            <div class="stat-value"><span id="totalData">7.5</span> GB</div>
+                            <div class="stat-detail">Used this month</div>
+                            <div class="stat-badge">15 GB limit</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage Bars -->
+                <div class="usage-container">
+                    <div class="usage-item">
+                        <div class="usage-header">
+                            <span class="usage-label">Calls Used</span>
+                            <span class="usage-amount"><span id="callsUsed">750</span> / 1500 min</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="callsProgress" style="width: 50%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="usage-item">
+                        <div class="usage-header">
+                            <span class="usage-label">SMS Used</span>
+                            <span class="usage-amount"><span id="smsUsed">150</span> / 300 SMS</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="smsProgress" style="width: 50%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="usage-item">
+                        <div class="usage-header">
+                            <span class="usage-label">Data Used</span>
+                            <span class="usage-amount"><span id="dataUsed">7.5</span> / 15 GB</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="dataProgress" style="width: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="document.getElementById('plans').scrollIntoView({behavior: 'smooth'})">
+                        📦 Browse Plans
+                    </button>
+                    <button class="btn btn-secondary" onclick="payBill()">
+                        💳 Pay Bill
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleCalls()">
+                        ☎️ View Calls
+                    </button>
+                </div>
+            </section>
+
+            <!-- Plans Section -->
+            <section id="plans" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Choose Your Plan</h2>
+                    <p class="section-subtitle">Switch to a better plan anytime</p>
+                </div>
+
+                <div class="plans-grid" id="plansContainer">
+                    <!-- Plans will be loaded here via JavaScript -->
+                </div>
+            </section>
+
+            <!-- Usage Section -->
+            <section id="usage" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Usage Summary</h2>
+                    <p class="section-subtitle">Your current month usage</p>
+                </div>
+
+                <div class="usage-summary">
+                    <div class="summary-card">
+                        <div class="summary-icon">☎️</div>
+                        <div class="summary-content">
+                            <div class="summary-label">Total Minutes</div>
+                            <div class="summary-value" id="summaryMinutes">22</div>
+                            <div class="summary-unit">minutes</div>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-icon">💬</div>
+                        <div class="summary-content">
+                            <div class="summary-label">SMS Sent</div>
+                            <div class="summary-value" id="summarySMS">150</div>
+                            <div class="summary-unit">messages</div>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-icon">📱</div>
+                        <div class="summary-content">
+                            <div class="summary-label">Data Used</div>
+                            <div class="summary-value" id="summaryData">7.5</div>
+                            <div class="summary-unit">GB</div>
+                        </div>
+                    </div>
+
+                    <div class="summary-card">
+                        <div class="summary-icon">💰</div>
+                        <div class="summary-content">
+                            <div class="summary-label">Extra Charges</div>
+                            <div class="summary-value" id="summaryCharges">₹15</div>
+                            <div class="summary-unit">this month</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calls Section -->
+            <section id="calls" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Calls</h2>
+                    <p class="section-subtitle">Your last 5 calls</p>
+                </div>
+
+                <div class="calls-list" id="callsList">
+                    <!-- Calls will be loaded here via JavaScript -->
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>About TeleCom</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Products</h4>
+                    <ul>
+                        <li><a href="#">Mobile Plans</a></li>
+                        <li><a href="#">Broadband</a></li>
+                        <li><a href="#">Business</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Status</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 TeleCom. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllData();
+            setupNavigation();
+        });
+
+        // Load all data
+        async function loadAllData() {
+            try {
+                const [plan, bill, usage, calls, stats, plans] = await Promise.all([
+                    fetch('/api/plan').then(r => r.json()),
+                    fetch('/api/bill').then(r => r.json()),
+                    fetch('/api/usage').then(r => r.json()),
+                    fetch('/api/calls').then(r => r.json()),
+                    fetch('/api/calls/stats').then(r => r.json()),
+                    fetch('/api/plans').then(r => r.json())
+                ]);
+
+                // Update plan info
+                document.getElementById('planName').textContent = plan.name;
+                document.getElementById('planPrice').textContent = plan.price;
+
+                // Update bill info
+                document.getElementById('billAmount').textContent = bill.amount.toFixed(2);
+                document.getElementById('billDue').textContent = new Date(bill.due_date).toLocaleDateString();
+
+                // Update usage
+                document.getElementById('callsUsed').textContent = usage.calls_used;
+                document.getElementById('callsProgress').style.width = usage.calls_percent + '%';
+                document.getElementById('smsUsed').textContent = usage.sms_used;
+                document.getElementById('smsProgress').style.width = usage.sms_percent + '%';
+                document.getElementById('dataUsed').textContent = usage.data_used;
+                document.getElementById('dataProgress').style.width = usage.data_percent + '%';
+
+                // Update calls stats
+                document.getElementById('totalCalls').textContent = stats.total_minutes;
+                document.getElementById('totalData').textContent = usage.data_used;
+
+                // Load plans
+                loadPlans(plans, plan.id);
+
+                // Load calls
+                loadCalls(calls);
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Load plans
+        function loadPlans(plans, currentPlanId) {
+            const container = document.getElementById('plansContainer');
+            container.innerHTML = plans.map(plan => `
+                <div class="plan-card ${plan.popular ? 'popular' : ''} ${plan.id === currentPlanId ? 'active-plan' : ''}">
+                    ${plan.popular ? '<div class="plan-badge">Most Popular</div>' : ''}
+                    <div class="plan-header">
+                        <h3 class="plan-name">${plan.name}</h3>
+                        <div class="plan-price">₹${plan.price}<span>/month</span></div>
+                    </div>
+                    <div class="plan-features">
+                        <div class="feature">✓ ${plan.calls} min calls</div>
+                        <div class="feature">✓ ${plan.sms} SMS</div>
+                        <div class="feature">✓ ${plan.data} GB data</div>
+                        ${plan.features.map(f => `<div class="feature">✓ ${f}</div>`).join('')}
+                    </div>
+                    <button class="btn ${plan.id === currentPlanId ? 'btn-secondary' : 'btn-primary'}" 
+                            onclick="changePlan(${plan.id})"
+                            ${plan.id === currentPlanId ? 'disabled' : ''}>
+                        ${plan.id === currentPlanId ? 'Current Plan' : 'Select Plan'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Load calls
+        function loadCalls(calls) {
+            const container = document.getElementById('callsList');
+            container.innerHTML = calls.map(call => `
+                <div class="call-item">
+                    <div class="call-info">
+                        <div class="call-number">${call.number}</div>
+                        <div class="call-time">${new Date(call.date).toLocaleString()}</div>
+                    </div>
+                    <div class="call-type ${call.type}">${call.type === 'incoming' ? '⬇ Incoming' : '⬆ Outgoing'}</div>
+                    <div class="call-duration">${Math.floor(call.duration / 60)}m ${call.duration % 60}s</div>
+                    <div class="call-cost">₹${call.cost.toFixed(2)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Change plan
+        async function changePlan(planId) {
+            try {
+                const response = await fetch('/api/plan/change', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ plan_id: planId })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Plan changed successfully!');
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error changing plan:', error);
+            }
+        }
+
+        // Pay bill
+        async function payBill() {
+            try {
+                const response = await fetch('/api/bill/pay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Payment successful! Transaction ID: ' + data.transaction_id);
+                }
+            } catch (error) {
+                console.error('Error paying bill:', error);
+            }
+        }
+
+        // Toggle calls visibility
+        function toggleCalls() {
+            const section = document.getElementById('calls');
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Setup navigation
+        function setupNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.section');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Highlight active section on scroll
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 60) {
+                        current = section.getAttribute('id');
+                    }
+                });
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').slice(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const element = document.querySelector(href);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

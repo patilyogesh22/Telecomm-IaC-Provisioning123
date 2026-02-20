@@ -1,49 +1,25 @@
 provider "aws" {
-  region = var.aws_region
-}
-
-resource "aws_security_group" "telecomm_sg" {
-  ingress {
-    from_port   = 5000
-    to_port     = 5000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  region = "ap-south-1"
 }
 
 resource "aws_instance" "telecomm_ec2" {
-  ami                    = var.ami_id
-  instance_type          = "t3.micro"
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.telecomm_sg.id]
+  ami           = "ami-0f5ee92e2d63afc18" # Ubuntu 22.04 (check region)
+  instance_type = "t2.small"
+  key_name      = "medicapskey1"
 
   user_data = <<-EOF
-              #!/bin/bash
-              apt update
-              apt install docker.io git -y
-              systemctl start docker
-              systemctl enable docker
+    #!/bin/bash
+    apt update -y
+    apt install docker.io -y
+    systemctl start docker
+    systemctl enable docker
 
-              git clone ${var.github_repo}
-              cd telecomm-iac-project
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    install minikube-linux-amd64 /usr/local/bin/minikube
 
-              docker build -t telecomm-app .
-              docker run -d -p 5000:5000 telecomm-app
-              EOF
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    install kubectl /usr/local/bin/kubectl
+  EOF
 
   tags = {
     Name = "Telecomm-IaC-EC2"

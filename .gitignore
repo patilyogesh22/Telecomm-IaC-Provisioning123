@@ -1,0 +1,15 @@
+.terraform/
+terraform.tfstate
+terraform.tfstate.backup
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
