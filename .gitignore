@@ -1,15 +1,38 @@
-.terraform/
-terraform.tfstate
-terraform.tfstate.backup
+# =========================
+# Terraform
+# =========================
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+*.tfstate
+*.tfstate.backup
+crash.log
+crash.*.log
+
+# =========================
 # Python
+# =========================
 .venv/
 __pycache__/
 *.pyc
 *.pyo
 
-# OS
+# =========================
+
+# Secrets
+# =========================
+*.pem
+.env
+
+# =========================
+# OS / Editor
+# =========================
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
 
+# =========================
 # Logs
+# =========================
 *.log
