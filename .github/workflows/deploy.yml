@@ -1,0 +1,28 @@
+name: Deploy to EC2
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline - Docker to EC2"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy on EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull yogeshpatil22/telecomm-iac123:latest
+            docker stop telecomm-app || true
+            docker rm telecomm-app || true
+            docker run -d \
+              --restart unless-stopped \
+              -p 80:5000 \
+              --name telecomm-app \
+              yogeshpatil22/telecomm-iac123:latest
