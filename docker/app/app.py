@@ -24,7 +24,7 @@ app.config['SECRET_KEY'] = 'telecom-secret-key-2024'
 # Sample data
 SAMPLE_USER = {
     'id': 1,
-    'name': 'Team Group 6',
+    'name': 'Group 6',
     'email': 'group6@telecom.com',
     'phone': '+91 9876543210',
     'avatar': 'JD'
