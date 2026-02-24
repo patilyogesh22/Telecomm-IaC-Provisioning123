@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeleCom - Calls</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="animated-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-mobile-alt"></i>TeleCom</div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard" class="nav-link"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="/plans" class="nav-link"><i class="fas fa-box"></i>Plans</a></li>
+                <li><a href="/bills" class="nav-link"><i class="fas fa-file-invoice"></i>Bills</a></li>
+                <li><a href="/calls" class="nav-link active"><i class="fas fa-phone-alt"></i>Calls</a></li>
+                <li><a href="/profile" class="nav-link"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+            <div class="user-section">
+                <div class="user-avatar" id="userAvatar" onclick="toggleMenu()">{{ user.avatar }}</div>
+                <div class="user-dropdown hidden" id="userMenu">
+                    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <h2 class="section-title">Call History</h2>
+
+        <div class="card">
+            <h3><i class="fas fa-phone-alt"></i> Recent Calls</h3>
+            <div id="callsList" class="calls-list"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 TeleCom. All rights reserved.</p>
+    </footer>
+
+    <script>
+        async function loadCalls() {
+            const calls = await fetch('/api/calls').then(r => r.json());
+            
+            const html = calls.map(c => `
+                <div class="call-item">
+                    <div class="call-icon ${c.type}">${c.type === 'incoming' ? '📥' : '📤'}</div>
+                    <div class="call-info">
+                        <h4>${c.name}</h4>
+                        <p>${c.number}</p>
+                        <p>${new Date(c.date).toLocaleString()}</p>
+                    </div>
+                    <div class="call-details">
+                        <span>${Math.floor(c.duration / 60)}m ${c.duration % 60}s</span>
+                        <span class="call-cost">₹${c.cost.toFixed(2)}</span>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('callsList').innerHTML = html || '<p style="color: #6B7280; text-align: center; padding: 20px;">No calls found</p>';
+        }
+
+        function toggleMenu() {
+            document.getElementById('userMenu').classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-section')) {
+                document.getElementById('userMenu').classList.add('hidden');
+            }
+        });
+
+        loadCalls();
+    </script>
+
+    <style>
+        .calls-list { display: flex; flex-direction: column; gap: 12px; }
+        .call-item { display: grid; grid-template-columns: 60px 1fr auto; gap: 16px; align-items: center; padding: 16px; background: var(--light); border-radius: 12px; }
+        .call-icon { width: 60px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .call-icon.incoming { background: #D1FAE5; }
+        .call-icon.outgoing { background: var(--light); }
+        .call-info h4 { font-weight: 700; margin-bottom: 4px; }
+        .call-info p { font-size: 13px; color: var(--gray); }
+        .call-details { display: flex; gap: 16px; align-items: center; font-weight: 700; }
+        .call-cost { color: var(--primary); }
+    </style>
+</body>
+</html>

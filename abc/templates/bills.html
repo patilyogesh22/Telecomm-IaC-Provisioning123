@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeleCom - Bills</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="animated-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-mobile-alt"></i>TeleCom</div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard" class="nav-link"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="/plans" class="nav-link"><i class="fas fa-box"></i>Plans</a></li>
+                <li><a href="/bills" class="nav-link active"><i class="fas fa-file-invoice"></i>Bills</a></li>
+                <li><a href="/calls" class="nav-link"><i class="fas fa-phone-alt"></i>Calls</a></li>
+                <li><a href="/profile" class="nav-link"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+            <div class="user-section">
+                <div class="user-avatar" id="userAvatar" onclick="toggleMenu()">{{ user.avatar }}</div>
+                <div class="user-dropdown hidden" id="userMenu">
+                    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <h2 class="section-title">Bills</h2>
+
+        <div class="card">
+            <h3><i class="fas fa-file-invoice-dollar"></i> Current Bill</h3>
+            <div id="billsContainer" class="bills-list"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 TeleCom. All rights reserved.</p>
+    </footer>
+
+    <script>
+        async function loadBills() {
+            const bill = await fetch('/api/bill').then(r => r.json());
+            
+            const html = `
+                <div class="bill-item">
+                    <div class="bill-info">
+                        <h4>${bill.period}</h4>
+                        <p>Amount: <strong>₹${bill.amount}</strong></p>
+                        <p>Status: <span class="badge ${bill.status === 'pending' ? 'badge-warning' : ''}">${bill.status.toUpperCase()}</span></p>
+                    </div>
+                    <div class="bill-actions">
+                        <button class="btn btn-primary" onclick="payBill()">Pay Now</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('billsContainer').innerHTML = html;
+        }
+
+        function payBill() {
+            if (confirm('Proceed with payment?')) {
+                fetch('/api/bill/pay', { method: 'POST' }).then(r => r.json()).then(d => {
+                    alert('✅ Payment successful! Transaction ID: ' + d.transaction_id);
+                    loadBills();
+                });
+            }
+        }
+
+        function toggleMenu() {
+            document.getElementById('userMenu').classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-section')) {
+                document.getElementById('userMenu').classList.add('hidden');
+            }
+        });
+
+        loadBills();
+    </script>
+
+    <style>
+        .bills-list { display: flex; flex-direction: column; gap: 16px; }
+        .bill-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: var(--light); border-radius: 12px; }
+        .bill-info h4 { font-weight: 700; margin-bottom: 8px; }
+        .bill-info p { font-size: 14px; color: var(--gray); margin: 4px 0; }
+        .bill-actions { display: flex; gap: 8px; }
+    </style>
+</body>
+</html>

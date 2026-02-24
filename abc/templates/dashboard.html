@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeleCom - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="animated-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-mobile-alt"></i>TeleCom</div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard" class="nav-link active"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="/plans" class="nav-link"><i class="fas fa-box"></i>Plans</a></li>
+                <li><a href="/bills" class="nav-link"><i class="fas fa-file-invoice"></i>Bills</a></li>
+                <li><a href="/calls" class="nav-link"><i class="fas fa-phone-alt"></i>Calls</a></li>
+                <li><a href="/profile" class="nav-link"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+            <div class="user-section">
+                <div class="user-avatar" id="userAvatar" onclick="toggleMenu()">{{ user.avatar }}</div>
+                <div class="user-dropdown hidden" id="userMenu">
+                    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <h2 class="section-title">Dashboard</h2>
+
+        <div class="cards-grid">
+            <div class="card">
+                <div class="card-top">
+                    <h3><i class="fas fa-box"></i> Active Plan</h3>
+                    <span class="badge">Active</span>
+                </div>
+                <p class="big-text" id="planName">Standard Plan</p>
+                <p class="plan-price" id="planPrice">₹599</p>
+                <div class="plan-info">
+                    <span><i class="fas fa-phone"></i> <span id="calls">1500</span> min calls</span>
+                    <span><i class="fas fa-comment"></i> <span id="sms">300</span> SMS</span>
+                    <span><i class="fas fa-wifi"></i> <span id="data">15</span> GB data</span>
+                </div>
+                <a href="/plans" class="btn btn-primary">Upgrade Plan</a>
+            </div>
+
+            <div class="card">
+                <div class="card-top">
+                    <h3><i class="fas fa-file-invoice-dollar"></i> Current Bill</h3>
+                    <span class="badge badge-warning">Due</span>
+                </div>
+                <p class="big-text" id="billAmount">₹706.82</p>
+                <p class="text-small" id="billPeriod">February 2024</p>
+                <p class="due-text" id="dueDate">Due: 5 days</p>
+                <button class="btn btn-primary" onclick="payBill()">Pay Now</button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-chart-pie"></i> Usage</h3>
+                <div class="usage-item">
+                    <div class="usage-header"><span>Calls</span><span id="callsPercent">50%</span></div>
+                    <div class="usage-bar"><div class="usage-fill" id="callsBar" style="width: 50%"></div></div>
+                </div>
+                <div class="usage-item">
+                    <div class="usage-header"><span>SMS</span><span id="smsPercent">50%</span></div>
+                    <div class="usage-bar"><div class="usage-fill" id="smsBar" style="width: 50%; background: #4ECDC4"></div></div>
+                </div>
+                <div class="usage-item">
+                    <div class="usage-header"><span>Data</span><span id="dataPercent">50%</span></div>
+                    <div class="usage-bar"><div class="usage-fill" id="dataBar" style="width: 50%; background: #FFD93D"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card full-width">
+            <h3><i class="fas fa-phone-alt"></i> Recent Calls</h3>
+            <div id="callsList" class="calls-list"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 TeleCom. All rights reserved.</p>
+    </footer>
+
+    <script>
+        async function loadDashboard() {
+            const user = await fetch('/api/user').then(r => r.json());
+            const plan = await fetch('/api/plan').then(r => r.json());
+            const bill = await fetch('/api/bill').then(r => r.json());
+            const usage = await fetch('/api/usage').then(r => r.json());
+            const calls = await fetch('/api/calls').then(r => r.json());
+
+            document.getElementById('userAvatar').textContent = user.avatar;
+            document.getElementById('planName').textContent = plan.name;
+            document.getElementById('planPrice').textContent = '₹' + plan.price;
+            document.getElementById('calls').textContent = plan.calls;
+            document.getElementById('sms').textContent = plan.sms;
+            document.getElementById('data').textContent = plan.data;
+
+            document.getElementById('billAmount').textContent = '₹' + bill.amount;
+            document.getElementById('billPeriod').textContent = bill.period;
+
+            const callsPct = Math.round((usage.calls_used / usage.calls_limit) * 100);
+            const smsPct = Math.round((usage.sms_used / usage.sms_limit) * 100);
+            const dataPct = Math.round((usage.data_used / usage.data_limit) * 100);
+
+            document.getElementById('callsPercent').textContent = callsPct + '%';
+            document.getElementById('smsPercent').textContent = smsPct + '%';
+            document.getElementById('dataPercent').textContent = dataPct + '%';
+            document.getElementById('callsBar').style.width = callsPct + '%';
+            document.getElementById('smsBar').style.width = smsPct + '%';
+            document.getElementById('dataBar').style.width = dataPct + '%';
+
+            const html = calls.map(c => `
+                <div class="call-item">
+                    <div class="call-icon ${c.type}">${c.type === 'incoming' ? '📥' : '📤'}</div>
+                    <div class="call-info"><h4>${c.name}</h4><p>${new Date(c.date).toLocaleString()}</p></div>
+                    <div class="call-details"><span>${Math.floor(c.duration / 60)}m</span><span class="call-cost">₹${c.cost}</span></div>
+                </div>
+            `).join('');
+            document.getElementById('callsList').innerHTML = html;
+        }
+
+        function toggleMenu() {
+            document.getElementById('userMenu').classList.toggle('hidden');
+        }
+
+        function payBill() {
+            if (confirm('Proceed with payment?')) {
+                fetch('/api/bill/pay', { method: 'POST' }).then(r => r.json()).then(d => {
+                    alert('✅ Payment successful! Transaction ID: ' + d.transaction_id);
+                    location.reload();
+                });
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-section')) {
+                document.getElementById('userMenu').classList.add('hidden');
+            }
+        });
+
+        loadDashboard();
+    </script>
+</body>
+</html>

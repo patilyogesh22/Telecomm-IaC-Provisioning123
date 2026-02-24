@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeleCom - Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 450px; }
+        .register-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo i { font-size: 48px; color: #0066FF; margin-bottom: 10px; }
+        .logo h1 { font-size: 32px; font-weight: 900; background: linear-gradient(135deg, #0066FF, #FF6B6B); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #1F2937; font-weight: 600; font-size: 14px; }
+        .form-group input { width: 100%; padding: 12px 16px; border: 2px solid #F3F4F6; border-radius: 10px; font-family: inherit; font-size: 14px; transition: all 0.3s; }
+        .form-group input:focus { outline: none; border-color: #0066FF; box-shadow: 0 0 10px rgba(0,102,255,0.2); }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; font-size: 16px; margin-bottom: 12px; }
+        .btn-primary { background: linear-gradient(135deg, #0066FF, #0052CC); color: white; box-shadow: 0 8px 20px rgba(0,102,255,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,102,255,0.4); }
+        .toggle-text { text-align: center; color: #6B7280; margin-top: 20px; }
+        .toggle-text a { color: #0066FF; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .toggle-text a:hover { text-decoration: underline; }
+        .alert { padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; display: none; }
+        .alert-error { background: #FEE2E2; color: #DC2626; border-left: 4px solid #DC2626; }
+        .alert-success { background: #D1FAE5; color: #10B981; border-left: 4px solid #10B981; }
+        .alert { display: block; }
+        .spinner { border: 4px solid #F3F4F6; border-top: 4px solid #0066FF; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader { display: none; text-align: center; }
+        @media (max-width: 480px) { .register-card { padding: 30px 20px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="register-card">
+            <div class="logo">
+                <i class="fas fa-mobile-alt"></i>
+                <h1>TeleCom</h1>
+            </div>
+
+            <div id="alertBox" class="alert"></div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input type="text" id="fullname" name="full_name" placeholder="Enter your full name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <span class="btn-text">Create Account</span>
+                    <span class="loader"><div class="spinner"></div></span>
+                </button>
+            </form>
+
+            <div class="toggle-text">
+                Already have an account? <a onclick="goToLogin()">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        const alertBox = document.getElementById('alertBox');
+        const btnText = document.querySelector('.btn-text');
+        const loader = document.querySelector('.loader');
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btnText.style.display = 'none';
+            loader.style.display = 'block';
+
+            const formData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                full_name: document.getElementById('fullname').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alertBox.className = 'alert alert-success';
+                    alertBox.textContent = '✅ Registration successful! Redirecting to login...';
+                    setTimeout(() => window.location.href = '/login', 1500);
+                } else {
+                    alertBox.className = 'alert alert-error';
+                    alertBox.textContent = '❌ ' + data.message;
+                    btnText.style.display = 'inline';
+                    loader.style.display = 'none';
+                }
+            } catch (error) {
+                alertBox.className = 'alert alert-error';
+                alertBox.textContent = '❌ Error: ' + error.message;
+                btnText.style.display = 'inline';
+                loader.style.display = 'none';
+            }
+        });
+
+        function goToLogin() {
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

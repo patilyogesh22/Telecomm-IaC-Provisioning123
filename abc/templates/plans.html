@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeleCom - Plans</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="animated-bg"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-mobile-alt"></i>TeleCom</div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard" class="nav-link"><i class="fas fa-home"></i>Dashboard</a></li>
+                <li><a href="/plans" class="nav-link active"><i class="fas fa-box"></i>Plans</a></li>
+                <li><a href="/bills" class="nav-link"><i class="fas fa-file-invoice"></i>Bills</a></li>
+                <li><a href="/calls" class="nav-link"><i class="fas fa-phone-alt"></i>Calls</a></li>
+                <li><a href="/profile" class="nav-link"><i class="fas fa-user"></i>Profile</a></li>
+            </ul>
+            <div class="user-section">
+                <div class="user-avatar" id="userAvatar" onclick="toggleMenu()">{{ user.avatar }}</div>
+                <div class="user-dropdown hidden" id="userMenu">
+                    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                    <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        <h2 class="section-title">Choose Your Plan</h2>
+        <div class="plans-grid" id="plansGrid"></div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 TeleCom. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const plans = [
+            { id: 1, name: 'Basic Plan', price: 299, calls: 500, sms: 100, data: 5, features: ['500 min calls', '100 SMS', '5 GB data', 'Basic support'] },
+            { id: 2, name: 'Standard Plan', price: 599, calls: 1500, sms: 300, data: 15, features: ['1500 min calls', '300 SMS', '15 GB data', 'Priority support'], popular: true },
+            { id: 3, name: 'Premium Plan', price: 999, calls: 3000, sms: 500, data: 30, features: ['3000 min calls', '500 SMS', '30 GB data', 'VIP support'] }
+        ];
+
+        async function loadPlans() {
+            const html = plans.map(p => `
+                <div class="card plan-card ${p.popular ? 'popular' : ''}">
+                    ${p.popular ? '<div class="plan-badge">⭐ Popular</div>' : ''}
+                    <h3 class="plan-name">${p.name}</h3>
+                    <p class="plan-price">₹${p.price}</p>
+                    <ul class="plan-features">
+                        ${p.features.map(f => `<li>✓ ${f}</li>`).join('')}
+                    </ul>
+                    <button type="button"
+                        class="btn btn-primary"
+                        onclick="selectPlan(${p.id}, '${p.name}', event)">
+                        Select Plan
+                    </button>
+                </div>
+            `).join('');
+            document.getElementById('plansGrid').innerHTML = html;
+        }
+
+        // function selectPlan(planId, planName, event) {
+        //     event.preventDefault();
+        //     event.currentTarget.blur();   // ✅ removes focus → stops auto-scroll
+        //     alert('Plan selected: ' + planName);
+        // }
+
+        // function toggleMenu() {
+        //     document.getElementById('userMenu').classList.toggle('hidden');
+        // }
+
+        // document.addEventListener('click', (e) => {
+        //     if (!e.target.closest('.user-section')) {
+        //         document.getElementById('userMenu').classList.add('hidden');
+        //     }
+        // });
+
+        loadPlans();
+    </script> 
+</body>
+</html>
